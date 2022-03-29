@@ -35,7 +35,7 @@ namespace SoundShout.Editor
             rootContainer.Add(GenerateUsageToolsFoldout());
         }
 
-        public static VisualElement GenerateToolTitleVisualElement()
+        private static VisualElement GenerateToolTitleVisualElement()
         {
             VisualElement titleContainer = new VisualElement
             {
@@ -104,7 +104,8 @@ namespace SoundShout.Editor
                 string path = EditorUtility.OpenFilePanel("Select client_secrets.json file", SoundShoutPaths.EDITOR_WINDOW_FOLDER_PATH, "json");
                 if (path.Length != 0)
                 {
-                    File.WriteAllText(SoundShoutPaths.CLIENT_SECRET_PATH, File.ReadAllText(path));
+                    TextAsset clientSecretFile = new TextAsset(File.ReadAllText(path));
+                    AssetDatabase.CreateAsset(clientSecretFile, SoundShoutPaths.CLIENT_SECRET_PATH);
                 }
             });
 
