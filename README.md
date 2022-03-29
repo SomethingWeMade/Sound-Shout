@@ -63,9 +63,17 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Created and maintained by [Niklas Mikkelsen](https://twitter.com/NikMikk) - niklas@somethingwemade.se
+[Niklas Mikkelsen (@NikMikk)](https://twitter.com/NikMikk) - niklas@somethingwemade.se
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+## Acknowledgments
+
+Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
+
+* Logo by [Noxlof](https://twitter.com/Noxlof)
+* Thanks to [oprel](https://twitter.com/oprel) & [Indiana-Jonas](https://twitter.com/https://twitter.com/IndianaJ0nas) for helping Sound Shout early by using it inside their undisclosed project 
+* Tool development & maintenance [NikMikk](https://twitter.com/NikMikk)
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
@@ -80,4 +88,3 @@ Created and maintained by [Niklas Mikkelsen](https://twitter.com/NikMikk) - nikl
 [issues-url]: https://github.com/SomethingWeMade/Sound-Shout/issues
 [license-shield]: https://img.shields.io/github/license/SomethingWeMade/Sound-Shout.svg?style=for-the-badge
 [license-url]: https://github.com/SomethingWeMade/Sound-Shout/blob/master/LICENSE.txt
-[product-screenshot]: images/screenshot.png
