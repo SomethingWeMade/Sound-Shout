@@ -72,8 +72,8 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
 
 * Logo by [Noxlof](https://twitter.com/Noxlof)
-* Thanks to [oprel](https://twitter.com/oprel) & [Indiana-Jonas](https://twitter.com/https://twitter.com/IndianaJ0nas) for helping Sound Shout early by using it inside their undisclosed project 
-* Tool development & maintenance [NikMikk](https://twitter.com/NikMikk)
+* Thanks to [oprel](https://twitter.com/oprel) & [Indiana-Jonas](https://twitter.com/IndianaJ0nas) for helping Sound Shout early by using it inside their undisclosed project 
+* Initial tool concept & development by [NikMikk](https://twitter.com/NikMikk)
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
