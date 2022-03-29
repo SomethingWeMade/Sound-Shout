@@ -10,9 +10,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/SomethingWeMade/Sound-Shout">
     <img src="/Editor/EditorWindow/SS_Tool_Logo.png" alt="Logo" width="256" height="256">
-  </a>
 
   <p align="center">
     Conveniently hook up FMOD events and generate Google Sheets!
@@ -24,9 +22,9 @@
 
 ## About The Project
 
-Sound Shout (SS) is a Unity Tool that uses ScriptableObjects to prepare for future FMOD Events by generating an online TODO list on Google Spreadsheet.
+Sound Shout is a Unity Tool that uses ScriptableObjects to prepare for future FMOD Events by generating an online TODO list on Google Spreadsheet.
 
-SS was born during the development of [TOEM](https://store.steampowered.com/app/1307580/TOEM/) because there was a need to automate our communication with TOEM's audio designers [Rumsklang](https://www.rumsklang.com/)
+It was born during the development of [TOEM](https://store.steampowered.com/app/1307580/TOEM/) because there was a need to automate our communication with TOEM's audio designers [Rumsklang](https://www.rumsklang.com/)
 
 Here's what it helped us with:
 * Conveniently hook up events before they have been created inside FMOD Studio
