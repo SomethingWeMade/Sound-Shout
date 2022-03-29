@@ -1,0 +1,24 @@
+{
+    "name": "AudioReference.Editor",
+    "references": [
+        "GUID:cbef427f5ea729841aaa6900106543cb"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Google.Apis.Auth.dll",
+        "Google.Apis.Auth.PlatformServices.dll",
+        "Google.Apis.Core.dll",
+        "Google.Apis.dll",
+        "Google.Apis.Sheets.v4.dll",
+        "Newtonsoft.Json.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
