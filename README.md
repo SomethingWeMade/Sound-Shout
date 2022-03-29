@@ -32,6 +32,7 @@ Here's what it helped us with:
 * Communicate with audio designers in a easy way
 * Never forget any audio
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Contributing
 
