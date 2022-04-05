@@ -32,8 +32,12 @@ namespace SoundShout.Editor
             return settings;
         }
 
-        internal static bool IsClientSecretsFileAvailable() { return !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(SoundShoutPaths.CLIENT_SECRET_PATH)); }
-        internal static void SelectAsset() { Selection.SetActiveObjectWithContext(Settings, null); }
+        internal static bool IsClientSecretsFileAvailable()
+        {
+            return !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(SoundShoutPaths.CLIENT_SECRET_PATH));
+        }
+        
+        internal static void SelectAssetInsideInspector() { Selection.SetActiveObjectWithContext(Settings, null); }
 
     }
 }

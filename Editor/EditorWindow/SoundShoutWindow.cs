@@ -69,7 +69,7 @@ namespace SoundShout.Editor
 
             setupFoldout.Add(GetNewLocateClientSecretButton());
 
-            var tweakSettingsButton = Utilities.CreateButton("Tweak Settings", SoundShoutSettings.SelectAsset);
+            var tweakSettingsButton = Utilities.CreateButton("Tweak Settings", SoundShoutSettings.SelectAssetInsideInspector);
             setupFoldout.Add(tweakSettingsButton);
             
             return setupFoldout;
@@ -104,8 +104,7 @@ namespace SoundShout.Editor
                 string path = EditorUtility.OpenFilePanel("Select client_secrets.json file", SoundShoutPaths.EDITOR_WINDOW_FOLDER_PATH, "json");
                 if (path.Length != 0)
                 {
-                    TextAsset clientSecretFile = new TextAsset(File.ReadAllText(path));
-                    AssetDatabase.CreateAsset(clientSecretFile, SoundShoutPaths.CLIENT_SECRET_PATH);
+                    AssetUtilities.CreateClientSecretFile(path);
                 }
             });
 
