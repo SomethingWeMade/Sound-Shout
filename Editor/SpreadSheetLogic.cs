@@ -223,7 +223,7 @@ namespace SoundShout.Editor
 
                     // ReSharper disable once PossibleInvalidOperationException
                     int sheetID = (int) sheet.Properties.SheetId;
-                    SheetsFormatting.AddEmptyConditionalFormattingRequests(ref batchUpdateSpreadsheetRequest, sheetID);
+                    SheetFormatting.AddEmptyConditionalFormattingRequests(ref batchUpdateSpreadsheetRequest, sheetID);
                 }
 
                 var batchUpdateRequest = Service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, SpreedSheetURL);
@@ -344,10 +344,10 @@ namespace SoundShout.Editor
 
                 // ReSharper disable once PossibleInvalidOperationException
                 int sheetID = (int) sheet.Properties.SheetId;
-                SheetsFormatting.ApplyHeaderFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
-                SheetsFormatting.ApplyRowFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
+                SheetFormatting.ApplyHeaderFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
+                SheetFormatting.ApplyRowFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
 
-                headerTextValueRanges.Add(SheetsFormatting.GetSetHeaderTextUpdateRequest(tabTitle));
+                headerTextValueRanges.Add(SheetFormatting.GetSetHeaderTextUpdateRequest(tabTitle));
             }
 
             // Apply formatting
