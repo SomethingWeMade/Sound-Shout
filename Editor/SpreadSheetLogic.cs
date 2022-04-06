@@ -226,11 +226,11 @@ namespace SoundShout.Editor
                     SheetFormatting.AddEmptyConditionalFormattingRequests(ref batchUpdateSpreadsheetRequest, sheetID);
                 }
 
+                AddFormattingRequests(ref batchUpdateSpreadsheetRequest); 
+                
                 var batchUpdateRequest = Service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, SpreedSheetURL);
                 batchUpdateRequest.Execute();
             }
-
-            ApplyFormattingToSpreadSheet();
         }
 
         private static void ClearAllSheetsRequest()
@@ -326,16 +326,9 @@ namespace SoundShout.Editor
             };
         }
 
-        public static void ApplyFormattingToSpreadSheet()
+        private static void AddFormattingRequests(ref BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest)
         {
-            var batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest
-            {
-                Requests = new List<Request>()
-            };
-
             var data = GetSheetData(SpreedSheetURL);
-            var headerTextValueRanges = new List<ValueRange>();
-
             foreach (var sheet in data.Sheets)
             {
                 string tabTitle = sheet.Properties.Title;
@@ -346,24 +339,32 @@ namespace SoundShout.Editor
                 int sheetID = (int) sheet.Properties.SheetId;
                 SheetFormatting.ApplyHeaderFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
                 SheetFormatting.ApplyRowFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
+            }
+        }
+        
+        internal static void ApplyFormattingToSpreadSheet()
+        {
+            var batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
 
-                headerTextValueRanges.Add(SheetFormatting.GetSetHeaderTextUpdateRequest(tabTitle));
+            AddFormattingRequests(ref batchUpdateSpreadsheetRequest);
+            
+            var data = GetSheetData(SpreedSheetURL);
+            IList<ValueRange> headerTextValueRanges = new List<ValueRange>();
+            foreach (var sheet in data.Sheets)
+            {
+                string tabTitle = sheet.Properties.Title;
+                if (tabTitle == OVERVIEW_TAB)
+                    continue;
+
+                headerTextValueRanges.Add(SheetFormatting.GetHeaderTextValueRange(tabTitle));
             }
 
             // Apply formatting
-            if (batchUpdateSpreadsheetRequest.Requests.Count > 0)
-            {
-                var batchUpdateRequest = Service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, SpreedSheetURL);
-                batchUpdateRequest.Execute();
-            }
+            var batchUpdateRequest = Service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, SpreedSheetURL); batchUpdateRequest.Execute();
 
-            // Apply header text
-            if (headerTextValueRanges.Count > 0)
-            {
-                BatchUpdateValuesRequest requestBody = new BatchUpdateValuesRequest {ValueInputOption = "USER_ENTERED", Data = headerTextValueRanges};
-                SpreadsheetsResource.ValuesResource.BatchUpdateRequest request = Service.Spreadsheets.Values.BatchUpdate(requestBody, SpreedSheetURL);
-                request.Execute();
-            }
+            // Add header column text
+            BatchUpdateValuesRequest requestBody = new BatchUpdateValuesRequest {ValueInputOption = "USER_ENTERED", Data = headerTextValueRanges};
+            SpreadsheetsResource.ValuesResource.BatchUpdateRequest request = Service.Spreadsheets.Values.BatchUpdate(requestBody, SpreedSheetURL); request.Execute();
         }
     }
 }
