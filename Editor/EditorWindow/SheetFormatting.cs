@@ -35,7 +35,7 @@ namespace SoundShout.Editor
             batchUpdateSpreadsheetRequest.Requests.Add( new Request {RepeatCell = repeatCell});
         }
 
-        internal static ValueRange GetSetHeaderTextUpdateRequest(string sheetTabName)
+        internal static ValueRange GetHeaderTextValueRange(string sheetTabName)
         {
             var textPerCell = new List<object>
             {
