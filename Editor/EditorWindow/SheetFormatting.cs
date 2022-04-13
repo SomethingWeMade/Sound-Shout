@@ -12,14 +12,8 @@ namespace SoundShout.Editor
         internal static void ApplyHeaderFormatting(ref BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest, int sheetID)
         {
             // Auto resize all headers
-            batchUpdateSpreadsheetRequest.Requests.Add( new Request {AutoResizeDimensions = new AutoResizeDimensionsRequest
-            {
-                Dimensions = new DimensionRange
-                {
-                    SheetId = sheetID,
-                    Dimension = "COLUMNS"
-                }
-            }});
+            var autoResizeDimensionsRequest = GetAutoResizeDimensionsRequest(sheetID);
+            batchUpdateSpreadsheetRequest.Requests.Add(new Request {AutoResizeDimensions = autoResizeDimensionsRequest});
 
             //create the update request for cells from the first row
             var repeatCell = new RepeatCellRequest
@@ -35,6 +29,18 @@ namespace SoundShout.Editor
             batchUpdateSpreadsheetRequest.Requests.Add( new Request {RepeatCell = repeatCell});
         }
 
+        private static AutoResizeDimensionsRequest GetAutoResizeDimensionsRequest(int sheetID)
+        {
+            return new AutoResizeDimensionsRequest
+            {
+                Dimensions = new DimensionRange
+                {
+                    SheetId = sheetID,
+                    Dimension = "COLUMNS"
+                }
+            };
+        }
+        
         internal static ValueRange GetHeaderTextValueRange(string sheetTabName)
         {
             var textPerCell = new List<object>
