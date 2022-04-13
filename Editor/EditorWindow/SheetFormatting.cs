@@ -5,21 +5,15 @@ using Color = Google.Apis.Sheets.v4.Data.Color;
 
 namespace SoundShout.Editor
 {
-    public static class SheetsFormatting
+    public static class SheetFormatting
     {
         #region Header
 
         internal static void ApplyHeaderFormatting(ref BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest, int sheetID)
         {
             // Auto resize all headers
-            batchUpdateSpreadsheetRequest.Requests.Add( new Request {AutoResizeDimensions = new AutoResizeDimensionsRequest
-            {
-                Dimensions = new DimensionRange
-                {
-                    SheetId = sheetID,
-                    Dimension = "COLUMNS"
-                }
-            }});
+            var autoResizeDimensionsRequest = GetAutoResizeDimensionsRequest(sheetID);
+            batchUpdateSpreadsheetRequest.Requests.Add(new Request {AutoResizeDimensions = autoResizeDimensionsRequest});
 
             //create the update request for cells from the first row
             var repeatCell = new RepeatCellRequest
@@ -31,11 +25,23 @@ namespace SoundShout.Editor
                 },
                 Fields = "UserEnteredFormat(BackgroundColor,TextFormat,HorizontalAlignment)"
             };
-            batchUpdateSpreadsheetRequest.Requests.Add(  new Request{UpdateDimensionProperties = headerDimensions(sheetID)} );
+            batchUpdateSpreadsheetRequest.Requests.Add(  new Request{UpdateDimensionProperties = HeaderDimensions(sheetID)} );
             batchUpdateSpreadsheetRequest.Requests.Add( new Request {RepeatCell = repeatCell});
         }
 
-        internal static ValueRange GetSetHeaderTextUpdateRequest(string sheetTabName)
+        private static AutoResizeDimensionsRequest GetAutoResizeDimensionsRequest(int sheetID)
+        {
+            return new AutoResizeDimensionsRequest
+            {
+                Dimensions = new DimensionRange
+                {
+                    SheetId = sheetID,
+                    Dimension = "COLUMNS"
+                }
+            };
+        }
+        
+        internal static ValueRange GetHeaderTextValueRange(string sheetTabName)
         {
             var textPerCell = new List<object>
             {
@@ -58,7 +64,7 @@ namespace SoundShout.Editor
             return valueRange;
         }
 
-        private static UpdateDimensionPropertiesRequest headerDimensions(int sheetID) =>
+        private static UpdateDimensionPropertiesRequest HeaderDimensions(int sheetID) =>
             new UpdateDimensionPropertiesRequest{
                 Range = new DimensionRange
                 {

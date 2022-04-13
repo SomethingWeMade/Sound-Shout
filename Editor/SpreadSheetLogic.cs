@@ -201,16 +201,10 @@ namespace SoundShout.Editor
             data.Add(updateText);
 
             bool hasCreatedNewTabs = CreateMissingSheetTabs(SpreedSheetURL, categories);
-
-            BatchUpdateValuesRequest requestBody = new BatchUpdateValuesRequest {ValueInputOption = "USER_ENTERED", Data = data};
-
-            SpreadsheetsResource.ValuesResource.BatchUpdateRequest request = Service.Spreadsheets.Values.BatchUpdate(requestBody, SpreedSheetURL);
-            request.Execute();
-
             if (hasCreatedNewTabs)
             {
                 var spreadsheet = GetSheetData(SpreedSheetURL);
-                var batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest
+                var batchUpdateNewTabsRequest = new BatchUpdateSpreadsheetRequest
                 {
                     Requests = new List<Request>()
                 };
@@ -221,16 +215,25 @@ namespace SoundShout.Editor
                     if (tabTitle == OVERVIEW_TAB)
                         continue;
 
-                    // ReSharper disable once PossibleInvalidOperationException
                     int sheetID = (int) sheet.Properties.SheetId;
-                    SheetsFormatting.AddEmptyConditionalFormattingRequests(ref batchUpdateSpreadsheetRequest, sheetID);
+                    SheetFormatting.AddEmptyConditionalFormattingRequests(ref batchUpdateNewTabsRequest, sheetID);
                 }
 
-                var batchUpdateRequest = Service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, SpreedSheetURL);
+                var batchUpdateRequest = Service.Spreadsheets.BatchUpdate(batchUpdateNewTabsRequest, SpreedSheetURL);
                 batchUpdateRequest.Execute();
+                
+                // ApplyFormattingToSpreadSheet();
             }
+            
+            BatchUpdateValuesRequest requestBody = new BatchUpdateValuesRequest {ValueInputOption = "USER_ENTERED", Data = data};
 
-            ApplyFormattingToSpreadSheet();
+            SpreadsheetsResource.ValuesResource.BatchUpdateRequest request = Service.Spreadsheets.Values.BatchUpdate(requestBody, SpreedSheetURL);
+            request.Execute();
+
+            if (hasCreatedNewTabs)
+            {
+                ApplyFormattingToSpreadSheet();
+            }
         }
 
         private static void ClearAllSheetsRequest()
@@ -326,17 +329,35 @@ namespace SoundShout.Editor
             };
         }
 
-        public static void ApplyFormattingToSpreadSheet()
+        internal static void ApplyFormattingToSpreadSheet()
         {
-            var batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest
+            var spreadsheetData = GetSheetData(SpreedSheetURL);
+            IList<ValueRange> headerTextValueRanges = new List<ValueRange>();
+            foreach (var sheet in spreadsheetData.Sheets)
             {
-                Requests = new List<Request>()
-            };
+                string tabTitle = sheet.Properties.Title;
+                if (tabTitle == OVERVIEW_TAB)
+                    continue;
 
-            var data = GetSheetData(SpreedSheetURL);
-            var headerTextValueRanges = new List<ValueRange>();
+                headerTextValueRanges.Add(SheetFormatting.GetHeaderTextValueRange(tabTitle));
+            }
 
-            foreach (var sheet in data.Sheets)
+            // Add header column text
+            BatchUpdateValuesRequest updateHeaderTextRequest = new BatchUpdateValuesRequest {ValueInputOption = "USER_ENTERED", Data = headerTextValueRanges};
+            SpreadsheetsResource.ValuesResource.BatchUpdateRequest request = Service.Spreadsheets.Values.BatchUpdate(updateHeaderTextRequest, SpreedSheetURL); 
+            request.Execute();
+            
+            // Apply formatting
+            var batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
+            AddFormattingRequests(ref batchUpdateSpreadsheetRequest, spreadsheetData);
+
+            var batchUpdateRequest = Service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, SpreedSheetURL); 
+            batchUpdateRequest.Execute();
+        }
+
+        private static void AddFormattingRequests(ref BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest, Spreadsheet spreadsheetData)
+        {
+            foreach (var sheet in spreadsheetData.Sheets)
             {
                 string tabTitle = sheet.Properties.Title;
                 if (tabTitle == OVERVIEW_TAB)
@@ -344,25 +365,8 @@ namespace SoundShout.Editor
 
                 // ReSharper disable once PossibleInvalidOperationException
                 int sheetID = (int) sheet.Properties.SheetId;
-                SheetsFormatting.ApplyHeaderFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
-                SheetsFormatting.ApplyRowFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
-
-                headerTextValueRanges.Add(SheetsFormatting.GetSetHeaderTextUpdateRequest(tabTitle));
-            }
-
-            // Apply formatting
-            if (batchUpdateSpreadsheetRequest.Requests.Count > 0)
-            {
-                var batchUpdateRequest = Service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, SpreedSheetURL);
-                batchUpdateRequest.Execute();
-            }
-
-            // Apply header text
-            if (headerTextValueRanges.Count > 0)
-            {
-                BatchUpdateValuesRequest requestBody = new BatchUpdateValuesRequest {ValueInputOption = "USER_ENTERED", Data = headerTextValueRanges};
-                SpreadsheetsResource.ValuesResource.BatchUpdateRequest request = Service.Spreadsheets.Values.BatchUpdate(requestBody, SpreedSheetURL);
-                request.Execute();
+                SheetFormatting.ApplyHeaderFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
+                SheetFormatting.ApplyRowFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
             }
         }
     }
