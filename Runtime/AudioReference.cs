@@ -24,7 +24,10 @@ public class AudioReference : ScriptableObject
     [HideInInspector] public string category;
     [HideInInspector] public string eventName;
 
-    public enum ImplementationStatus { Delete, TODO, Created, Implemented, Feedback, Iterate, Done };
+    public enum ImplementationStatus
+    {
+        Delete, TODO, FMODReady, UnityReady, Feedback, Iterate, Done 
+    };
     
 #endif
     #endregion
