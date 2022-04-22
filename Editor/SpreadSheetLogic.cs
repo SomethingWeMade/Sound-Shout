@@ -109,9 +109,9 @@ namespace SoundShout.Editor
                         string feedback = (string) row[(int) UsedRows.Feedback];
 
                         string enumString = (string) row[(int) UsedRows.ImplementStatus];
-                        var parsedImplementationStatus = (AudioReference.ImplementationStatus) 
-                            Enum.Parse(typeof(AudioReference.ImplementationStatus), enumString);
-
+                        AudioReference.ImplementationStatus parsedImplementationStatus = AudioReference.ImplementationStatus.TODO;
+                        Enum.TryParse<AudioReference.ImplementationStatus>(enumString, true, out parsedImplementationStatus);
+                        
                         if (parsedImplementationStatus == AudioReference.ImplementationStatus.Delete)
                         {
                             Debug.Log($"Skipped creating audio reference for \"{eventName}\" as it's marked as Delete!");
