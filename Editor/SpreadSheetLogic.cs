@@ -192,7 +192,9 @@ namespace SoundShout.Editor
             // Last Updated Text
             var updateText = new ValueRange
             {
-                Values = new List<IList<object>> {new object[] {"Updated\n" + DateTime.Now.ToString("g", CultureInfo.InvariantCulture)}},
+                Values = new List<IList<object>> {new object[] {
+                    $"Updated\n{DateTime.Now.ToString("G", CultureInfo.InvariantCulture)}", 
+                    DateTime.Now.Subtract(new DateTime(1899,12,30)).TotalDays}},
                 Range = LAST_UPDATED_RANGE
             };
 
