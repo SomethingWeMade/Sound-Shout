@@ -118,13 +118,11 @@ namespace SoundShout.Editor
                             continue;
                         }
                         
-                        string fullEventName = $"event:/{eventName}";
-                        bool doesAudioReferenceExist = AssetUtilities.DoesAudioReferenceExist(fullEventName);
+                        bool doesAudioReferenceExist = AssetUtilities.DoesAudioReferenceExist(eventName);
                         if (doesAudioReferenceExist)
                         {
                             var audioRef = AssetUtilities.GetAudioReferenceAtPath(eventName);
                             AudioReferenceAssetEditor.ApplyChanges(audioRef, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
-                            break;
                         }
                         else
                         {

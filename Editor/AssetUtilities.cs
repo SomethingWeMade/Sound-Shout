@@ -10,17 +10,25 @@ namespace SoundShout.Editor
     {
         #region AudioReference
 
-        private static string GetFullEventAssetPath(string eventName)
+        private static string GetAbsoluteEventAssetPath(string assetName)
         {
-            return $"Assets/Audio/{eventName}.asset";
+            return $"{Application.dataPath}/Audio/{assetName}.asset";
+        }
+
+        private static string GetProjectPathForEventAsset(string assetName)
+        {
+            return $"Assets/Audio/{assetName}.asset";
         }
 
         internal static AudioReference GetAudioReferenceAtPath(string eventName)
         {
-            return AssetDatabase.LoadAssetAtPath<AudioReference>(GetFullEventAssetPath(eventName));
+            return AssetDatabase.LoadAssetAtPath<AudioReference>(GetProjectPathForEventAsset(eventName));
         }
-        
-        internal static bool DoesAudioReferenceExist(string eventName) { return File.Exists(GetFullEventAssetPath(eventName)); }
+
+        internal static bool DoesAudioReferenceExist(string eventName)
+        {
+            return File.Exists(GetAbsoluteEventAssetPath(eventName));
+        }
 
         internal static AudioReference[] GetAllAudioReferences()
         {
@@ -41,7 +49,7 @@ namespace SoundShout.Editor
         {
             AudioReference newAudioReference = ScriptableObject.CreateInstance<AudioReference>();
 
-            string fullAssetPath = GetFullEventAssetPath(assetPath);
+            string fullAssetPath = GetProjectPathForEventAsset(assetPath);
             string lastParentFolder = fullAssetPath.Substring(0, fullAssetPath.LastIndexOf('/'));
 
             try
