@@ -83,7 +83,7 @@ namespace SoundShout.Editor
 
             if (saveUpdates)
             {
-                Debug.Log($"AudioReferenceExporter: Updated \"{reference.name}\": {changes}");
+                Debug.Log($"AudioReferenceExporter: Updated \"{reference.name}\": {changes}", reference);
             }
         }
 
