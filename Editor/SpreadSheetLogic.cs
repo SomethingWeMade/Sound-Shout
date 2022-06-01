@@ -229,7 +229,9 @@ namespace SoundShout.Editor
 
             data.Add(updateText);
 
-            bool hasCreatedNewTabs = CreateMissingSheetTabs(SpreedSheetURL, categories);
+            
+            IList<Request> createdTabsList = CreateMissingSheetTabs(SpreedSheetURL, categories);
+            bool hasCreatedNewTabs = createdTabsList != null;
             if (hasCreatedNewTabs)
             {
                 var spreadsheet = GetSheetData(SpreedSheetURL);
@@ -237,21 +239,26 @@ namespace SoundShout.Editor
                 {
                     Requests = new List<Request>()
                 };
-
-                foreach (var sheet in spreadsheet.Sheets)
+            
+                foreach (var sheet in createdTabsList)
                 {
-                    string tabTitle = sheet.Properties.Title;
+                    string tabTitle = sheet.AddSheet.Properties.Title;
                     if (tabTitle == OVERVIEW_TAB)
                         continue;
 
-                    int sheetID = (int) sheet.Properties.SheetId;
-                    SheetFormatting.AddEmptyConditionalFormattingRequests(ref batchUpdateNewTabsRequest, sheetID);
+                    foreach (var sheetData in spreadsheet.Sheets)
+                    {
+                        if (sheetData.Properties.Title == tabTitle)
+                        {
+                            int sheetID = (int) sheetData.Properties.SheetId;
+                            SheetFormatting.AddEmptyConditionalFormattingRequests(ref batchUpdateNewTabsRequest, sheetID);
+                            break;
+                        }
+                    }
                 }
-
+            
                 var batchUpdateRequest = Service.Spreadsheets.BatchUpdate(batchUpdateNewTabsRequest, SpreedSheetURL);
                 batchUpdateRequest.Execute();
-                
-                // ApplyFormattingToSpreadSheet();
             }
             
             BatchUpdateValuesRequest requestBody = new BatchUpdateValuesRequest {ValueInputOption = "USER_ENTERED", Data = data};
@@ -281,7 +288,7 @@ namespace SoundShout.Editor
             request.Execute();
         }
 
-        private static bool CreateMissingSheetTabs(string spreadsheetURL, Dictionary<string, int> categories)
+        private static IList<Request> CreateMissingSheetTabs(string spreadsheetURL, Dictionary<string, int> categories)
         {
             var data = GetSheetData(spreadsheetURL);
             var existingTabs = GetSpreadsheetTabsList(data, true);
@@ -318,10 +325,10 @@ namespace SoundShout.Editor
                 var batchUpdateRequest = Service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, spreadsheetURL);
                 batchUpdateRequest.Execute();
 
-                return true;
+                return batchUpdateSpreadsheetRequest.Requests;
             }
 
-            return false;
+            return null;
         }
 
         private static AddSheetRequest CreateNewAddOverviewTabRequest()
@@ -392,7 +399,6 @@ namespace SoundShout.Editor
                 if (tabTitle == OVERVIEW_TAB)
                     continue;
 
-                // ReSharper disable once PossibleInvalidOperationException
                 int sheetID = (int) sheet.Properties.SheetId;
                 SheetFormatting.ApplyHeaderFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
                 SheetFormatting.ApplyRowFormatting(ref batchUpdateSpreadsheetRequest, sheetID);
