@@ -93,6 +93,7 @@ namespace SoundShout.Editor
             try
             {
                 AssetDatabase.DisallowAutoRefresh();
+                HashSet<string> duplicationCheckerHashSet = new HashSet<string>();
                 List<AudioReference> newAudioRefsList = new List<AudioReference>(10);
                 for (int sheetIndex = 0; sheetIndex < sheets.Count; sheetIndex++)
                 {
@@ -107,6 +108,14 @@ namespace SoundShout.Editor
                         foreach (var row in values)
                         {
                             string eventName = $"{(string)row[(int)UsedRows.EventName]}";
+                            if (duplicationCheckerHashSet.Contains(eventName))
+                            {
+                                Debug.LogError($"AudioReference Duplication detected in spreadsheet: {eventName}");
+                                continue;
+                            }
+
+                            duplicationCheckerHashSet.Add(eventName);
+                            
                             bool is3D = (string)row[(int)UsedRows.Is3D] == "3D";
                             bool isLooping = (string)row[(int)UsedRows.Looping] == "Loop";
                             string parameters = (string)row[(int)UsedRows.Parameters];
