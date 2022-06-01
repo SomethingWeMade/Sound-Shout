@@ -157,6 +157,14 @@ namespace SoundShout.Editor
                 int newSize = currentSize + newAudioRefsList.Count;
                 if (currentSize < newSize)
                 {
+                    System.Text.StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = 0; i < newAudioRefsList.Count; i++)
+                    {
+                        stringBuilder.Append("-");
+                        stringBuilder.AppendLine(newAudioRefsList[i].eventName);
+                    }
+                    Debug.Log($"<color=cyan>Created {newAudioRefsList.Count} new audio references (Click for info)</color>\n{stringBuilder}");
+                    
                     newAudioRefsList.AddRange(audioReferences);
                     audioReferences = newAudioRefsList.ToArray();
 

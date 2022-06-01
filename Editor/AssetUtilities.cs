@@ -62,8 +62,6 @@ namespace SoundShout.Editor
                 }
 
                 AssetDatabase.CreateAsset(newAudioReference, fullAssetPath);
-                Debug.Log($"<color=cyan>Created new AudioReference: \"{assetPath}\"</color>");
-                
                 return newAudioReference;
             }
             catch (Exception e)
