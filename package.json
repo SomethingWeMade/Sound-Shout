@@ -6,7 +6,7 @@
     "url": ""
   },
   "displayName": "SWM Sound Shout",
-  "version": "0.2.2",
+  "version": "0.2.5",
   "description": "Conveniently hook up FMOD events and generate Google Sheets",
   "keywords": [
     "something",
