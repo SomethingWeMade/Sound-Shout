@@ -157,7 +157,7 @@ namespace SoundShout.Editor
                 int newSize = currentSize + newAudioRefsList.Count;
                 if (currentSize < newSize)
                 {
-                    System.Text.StringBuilder stringBuilder = new StringBuilder();
+                    System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
                     for (int i = 0; i < newAudioRefsList.Count; i++)
                     {
                         stringBuilder.Append("-");
