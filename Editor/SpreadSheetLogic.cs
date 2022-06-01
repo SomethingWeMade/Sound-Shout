@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
-using UnityEngine;
+using UnityEditor;
+using Debug = UnityEngine.Debug;
 
 namespace SoundShout.Editor
 {
@@ -63,7 +65,7 @@ namespace SoundShout.Editor
             });
         }
 
-        internal static void OpenSpreadSheetInBrowser() => System.Diagnostics.Process.Start($"https://docs.google.com/spreadsheets/d/{SpreedSheetURL}");
+        internal static void OpenSpreadSheetInBrowser() => Process.Start($"https://docs.google.com/spreadsheets/d/{SpreedSheetURL}");
 
         internal static void UpdateAudioSpreadSheet()
         {
@@ -77,7 +79,7 @@ namespace SoundShout.Editor
 
             Debug.Log("AudioReferenceExporter: All AudioReference is up-to-date");
         }
-        
+
         internal static void FetchSpreadsheetChanges()
         {
             var data = GetSheetData(SpreedSheetURL);
@@ -88,65 +90,75 @@ namespace SoundShout.Editor
 
         private static void ReadEntries(ref AudioReference[] audioReferences, ref List<string> sheets)
         {
-            List<AudioReference> newAudioRefsList = new List<AudioReference>(10);
-            for (int sheetIndex = 0; sheetIndex < sheets.Count; sheetIndex++)
+            try
             {
-                var range = $"{sheets[sheetIndex]}!{STANDARD_RANGE}";
-                var request = Service.Spreadsheets.Values.Get(SpreedSheetURL, range);
-
-                ValueRange response = request.Execute();
-                IList<IList<object>> values = response.Values;
-                if (values != null && values.Count > 0)
+                AssetDatabase.DisallowAutoRefresh();
+                List<AudioReference> newAudioRefsList = new List<AudioReference>(10);
+                for (int sheetIndex = 0; sheetIndex < sheets.Count; sheetIndex++)
                 {
-                    // Go through each row and their data
-                    foreach (var row in values)
-                    {
-                        string eventName = $"{(string) row[(int) UsedRows.EventName]}";
-                        bool is3D = (string) row[(int) UsedRows.Is3D] == "3D";
-                        bool isLooping = (string) row[(int) UsedRows.Looping] == "Loop";
-                        string parameters = (string) row[(int) UsedRows.Parameters];
-                        string description = (string) row[(int) UsedRows.Description];
-                        string feedback = (string) row[(int) UsedRows.Feedback];
+                    var range = $"{sheets[sheetIndex]}!{STANDARD_RANGE}";
+                    var request = Service.Spreadsheets.Values.Get(SpreedSheetURL, range);
 
-                        string enumString = (string) row[(int) UsedRows.ImplementStatus];
-                        AudioReference.ImplementationStatus parsedImplementationStatus = AudioReference.ImplementationStatus.TODO;
-                        Enum.TryParse<AudioReference.ImplementationStatus>(enumString, true, out parsedImplementationStatus);
-                        
-                        if (parsedImplementationStatus == AudioReference.ImplementationStatus.Delete)
+                    ValueRange response = request.Execute();
+                    IList<IList<object>> values = response.Values;
+                    if (values != null && values.Count > 0)
+                    {
+                        // Go through each row and their data
+                        foreach (var row in values)
                         {
-                            Debug.Log($"Skipped creating audio reference for \"{eventName}\" as it's marked as Delete!");
-                            continue;
-                        }
-                        
-                        bool doesAudioReferenceExist = AssetUtilities.DoesAudioReferenceExist(eventName);
-                        if (doesAudioReferenceExist)
-                        {
-                            var audioRef = AssetUtilities.GetAudioReferenceAtPath(eventName);
-                            AudioReferenceAssetEditor.ApplyChanges(audioRef, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
-                        }
-                        else
-                        {
-                            var newSound = AssetUtilities.CreateNewAudioReferenceAsset(eventName);
-                            AssetUtilities.ConfigureAudioReference(newSound, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
-                            newAudioRefsList.Add(newSound);
+                            string eventName = $"{(string)row[(int)UsedRows.EventName]}";
+                            bool is3D = (string)row[(int)UsedRows.Is3D] == "3D";
+                            bool isLooping = (string)row[(int)UsedRows.Looping] == "Loop";
+                            string parameters = (string)row[(int)UsedRows.Parameters];
+                            string description = (string)row[(int)UsedRows.Description];
+                            string feedback = (string)row[(int)UsedRows.Feedback];
+
+                            string enumString = (string)row[(int)UsedRows.ImplementStatus];
+                            Enum.TryParse(enumString, true, out AudioReference.ImplementationStatus parsedImplementationStatus);
+
+                            if (parsedImplementationStatus == AudioReference.ImplementationStatus.Delete)
+                            {
+                                Debug.Log($"Skipped creating audio reference for \"{eventName}\" as it's marked as Delete!");
+                                continue;
+                            }
+
+                            bool doesAudioReferenceExist = AssetUtilities.DoesAudioReferenceExist(eventName);
+                            if (doesAudioReferenceExist)
+                            {
+                                var audioRef = AssetUtilities.GetAudioReferenceAtPath(eventName);
+                                AudioReferenceAssetEditor.ApplyChanges(audioRef, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
+                            }
+                            else
+                            {
+                                var newSound = AssetUtilities.CreateNewAudioReferenceAsset(eventName);
+                                AssetUtilities.ConfigureAudioReference(newSound, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
+                                newAudioRefsList.Add(newSound);
+                            }
                         }
                     }
+                    else
+                    {
+                        Debug.Log($"No data was found in tab: \"{sheets[sheetIndex]}\"");
+                    }
                 }
-                else
+
+                AssetDatabase.AllowAutoRefresh();
+
+                int currentSize = audioReferences.Length;
+                int newSize = currentSize + newAudioRefsList.Count;
+                if (currentSize < newSize)
                 {
-                    Debug.Log($"No data was found in tab: \"{sheets[sheetIndex]}\"");
+                    newAudioRefsList.AddRange(audioReferences);
+                    audioReferences = newAudioRefsList.ToArray();
+
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
                 }
             }
-
-            int currentSize = audioReferences.Length;
-            int newSize = currentSize + newAudioRefsList.Count;
-            if (currentSize < newSize)
+            catch (Exception)
             {
-                newAudioRefsList.AddRange(audioReferences);
-                audioReferences = newAudioRefsList.ToArray();
-                
-                UnityEditor.AssetDatabase.SaveAssets();
-                UnityEditor.AssetDatabase.Refresh();
+                AssetDatabase.AllowAutoRefresh();
+                throw;
             }
         }
 

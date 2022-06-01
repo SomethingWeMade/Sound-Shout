@@ -59,7 +59,6 @@ namespace SoundShout.Editor
                     string unityProjectPath = Application.dataPath.Replace("Assets", "");
                     string absoluteAssetParentFolderPath = $"{unityProjectPath}{lastParentFolder}";
                     Directory.CreateDirectory(absoluteAssetParentFolderPath);
-                    AssetDatabase.Refresh();
                 }
 
                 AssetDatabase.CreateAsset(newAudioReference, fullAssetPath);
