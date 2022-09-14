@@ -51,13 +51,7 @@ namespace SoundShout.Editor
 
         private static SheetsService GetSheetsService()
         {
-            GoogleCredential credential;
-            const string secretsPath = SoundShoutPaths.CLIENT_SECRET_PATH;
-            using (var stream = new FileStream(secretsPath, FileMode.Open, FileAccess.Read))
-            {
-                credential = GoogleCredential.FromStream(stream).CreateScoped(SheetsService.Scope.Spreadsheets);
-            }
-
+            var credential = GoogleCredential.FromJson(SoundShoutSettings.Settings.clientSecretJsonData).CreateScoped(SheetsService.Scope.Spreadsheets);
             return new SheetsService(new BaseClientService.Initializer
             {
                 HttpClientInitializer = credential,
@@ -93,7 +87,7 @@ namespace SoundShout.Editor
             try
             {
                 AssetDatabase.DisallowAutoRefresh();
-                HashSet<string> duplicationCheckerHashSet = new HashSet<string>();
+                Dictionary<string, AudioReference> duplicationDictionary = new Dictionary<string, AudioReference>();
                 List<AudioReference> newAudioRefsList = new List<AudioReference>(10);
                 for (int sheetIndex = 0; sheetIndex < sheets.Count; sheetIndex++)
                 {
@@ -108,13 +102,12 @@ namespace SoundShout.Editor
                         foreach (var row in values)
                         {
                             string eventName = $"{(string)row[(int)UsedRows.EventName]}";
-                            if (duplicationCheckerHashSet.Contains(eventName))
+                            if (duplicationDictionary.ContainsKey(eventName))
                             {
-                                Debug.LogError($"AudioReference Duplication detected in spreadsheet: {eventName}");
+                                Debug.LogError($"AudioReference Duplication detected in spreadsheet: {eventName}", duplicationDictionary[eventName]);
                                 continue;
                             }
 
-                            duplicationCheckerHashSet.Add(eventName);
                             
                             bool is3D = (string)row[(int)UsedRows.Is3D] == "3D";
                             bool isLooping = (string)row[(int)UsedRows.Looping] == "Loop";
@@ -132,17 +125,20 @@ namespace SoundShout.Editor
                             }
 
                             bool doesAudioReferenceExist = AssetUtilities.DoesAudioReferenceExist(eventName);
+                            AudioReference audioRef;
                             if (doesAudioReferenceExist)
                             {
-                                var audioRef = AssetUtilities.GetAudioReferenceAtPath(eventName);
+                                audioRef = AssetUtilities.GetAudioReferenceAtPath(eventName);
                                 AudioReferenceAssetEditor.ApplyChanges(audioRef, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
                             }
                             else
                             {
-                                var newSound = AssetUtilities.CreateNewAudioReferenceAsset(eventName);
-                                AssetUtilities.ConfigureAudioReference(newSound, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
-                                newAudioRefsList.Add(newSound);
+                                audioRef = AssetUtilities.CreateNewAudioReferenceAsset(eventName);
+                                AssetUtilities.ConfigureAudioReference(audioRef, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
+                                newAudioRefsList.Add(audioRef);
                             }
+
+                            duplicationDictionary.Add(eventName, audioRef);
                         }
                     }
                     else

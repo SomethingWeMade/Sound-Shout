@@ -2,10 +2,10 @@
 {
     internal static class SoundShoutPaths
     {
-        private const string ROOT_PACKAGE_PATH = "Packages/se.somethingwemade.soundshout";
-        internal const string SETTINGS_ASSET_PATH = ROOT_PACKAGE_PATH + "/Editor/Settings/Sound Shout Settings.asset";
-        internal const string EDITOR_WINDOW_FOLDER_PATH = ROOT_PACKAGE_PATH + "/Editor/EditorWindow";
+        public const string AUDIO_ROOT_PATH = "Assets/Audio";
+        internal const string SETTINGS_ASSET_PATH = AUDIO_ROOT_PATH + "/Settings/Sound Shout Settings.asset";
         
-        internal const string CLIENT_SECRET_PATH = EDITOR_WINDOW_FOLDER_PATH + "/client_secret.json";
+        private const string ROOT_PACKAGE_PATH = "Packages/se.somethingwemade.soundshout";
+        internal const string EDITOR_WINDOW_FOLDER_PATH = ROOT_PACKAGE_PATH + "/Editor/EditorWindow";
     }
 }

@@ -5,7 +5,8 @@ namespace SoundShout.Editor
     using UnityEditor;
     using UnityEngine;
 
-    [CustomEditor(typeof(AudioReference))] public class AudioReferenceAssetEditor : Editor
+    [CustomEditor(typeof(AudioReference))] 
+    public class AudioReferenceAssetEditor : Editor
     {
         public override void OnInspectorGUI()
         {
@@ -105,7 +106,8 @@ namespace SoundShout.Editor
                 return;
             }
 
-            assetPath = assetPath.Replace("Assets/Audio/", "");
+            const string audioPath = SoundShoutPaths.AUDIO_ROOT_PATH;
+            assetPath = assetPath.Replace( $"{audioPath}/", "");
             assetPath = assetPath.Replace(".asset", "");
 
             int lastSlashIndex = assetPath.IndexOf('/');
