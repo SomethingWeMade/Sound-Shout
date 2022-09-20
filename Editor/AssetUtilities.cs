@@ -79,17 +79,5 @@ namespace SoundShout.Editor
         }
         
         #endregion
-
-        internal static void CreateClientSecretFile(string filePath)
-        {
-            if (File.Exists(SoundShoutPaths.CLIENT_SECRET_PATH))
-            {
-                File.Delete(SoundShoutPaths.CLIENT_SECRET_PATH);
-            }
-            
-            File.Copy(filePath, SoundShoutPaths.CLIENT_SECRET_PATH);
-            AssetDatabase.Refresh();
-        }
-        
     }
 }
