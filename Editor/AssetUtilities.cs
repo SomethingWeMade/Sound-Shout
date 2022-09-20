@@ -32,7 +32,7 @@ namespace SoundShout.Editor
 
         internal static AudioReference[] GetAllAudioReferences()
         {
-            string[] audioReferences = AssetDatabase.FindAssets("t:AudioReference");
+            string[] audioReferences = AssetDatabase.FindAssets("t:AudioReference", new[] {SoundShoutPaths.AUDIO_ROOT_PATH});
             AudioReference[] audioReferencesArray = new AudioReference[audioReferences.Length];
 
             for (int i = 0; i < audioReferences.Length; i++)
