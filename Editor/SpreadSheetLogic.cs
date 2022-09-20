@@ -116,8 +116,13 @@ namespace SoundShout.Editor
                             string feedback = (string)row[(int)UsedRows.Feedback];
 
                             string enumString = (string)row[(int)UsedRows.ImplementStatus];
-                            Enum.TryParse(enumString, true, out AudioReference.ImplementationStatus parsedImplementationStatus);
-
+                            bool couldParseStatusText = Enum.TryParse(enumString, true, out AudioReference.ImplementationStatus parsedImplementationStatus);
+                            if (!couldParseStatusText)
+                            {
+                                Debug.LogError($"Spreadsheet event \"{eventName}\" has a status value \"{enumString}\" which can't be parsed.");
+                                continue;
+                            }
+                            
                             if (parsedImplementationStatus == AudioReference.ImplementationStatus.Delete)
                             {
                                 Debug.Log($"Skipped creating audio reference for \"{eventName}\" as it's marked as Delete!");
