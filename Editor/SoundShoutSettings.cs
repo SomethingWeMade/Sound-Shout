@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -23,7 +24,9 @@ namespace SoundShout.Editor
             SoundShoutSettings settings = LoadExistingSettingsAsset();
             if (settings == null)
             {
+                Debug.Log($"No {nameof(SoundShoutSettings)} found in project. Creating new");
                 settings = CreateInstance<SoundShoutSettings>();
+                CreateDirectoryFromAssetPath(SoundShoutPaths.SETTINGS_ASSET_PATH);
                 AssetDatabase.CreateAsset(settings, SoundShoutPaths.SETTINGS_ASSET_PATH);
                 AssetDatabase.SaveAssets();
             }
@@ -31,6 +34,16 @@ namespace SoundShout.Editor
             return settings;
         }
 
+        private static void CreateDirectoryFromAssetPath(string assetPath)
+        {
+            string directoryPath = Path.GetDirectoryName(assetPath);
+            if (Directory.Exists(directoryPath))
+                return;
+            Directory.CreateDirectory(directoryPath);
+            AssetDatabase.Refresh();
+        }
+
+        
         static SoundShoutSettings LoadExistingSettingsAsset()
         {
             var assetGuidArray = AssetDatabase.FindAssets($"t:{nameof(SoundShoutSettings)}", null);
