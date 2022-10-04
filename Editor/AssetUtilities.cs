@@ -32,12 +32,15 @@ namespace SoundShout.Editor
 
         internal static AudioReference[] GetAllAudioReferences()
         {
-            string[] audioReferences = AssetDatabase.FindAssets("t:AudioReference", new[] {SoundShoutPaths.AUDIO_ROOT_PATH});
-            AudioReference[] audioReferencesArray = new AudioReference[audioReferences.Length];
+            if (!AssetDatabase.IsValidFolder(SoundShoutPaths.AUDIO_ROOT_PATH))
+                return Array.Empty<AudioReference>();
+            
+            string[] audioReferencePaths = AssetDatabase.FindAssets("t:AudioReference", new[] {SoundShoutPaths.AUDIO_ROOT_PATH});
+            AudioReference[] audioReferencesArray = new AudioReference[audioReferencePaths.Length];
 
-            for (int i = 0; i < audioReferences.Length; i++)
+            for (int i = 0; i < audioReferencePaths.Length; i++)
             {
-                var audioReference = AssetDatabase.LoadAssetAtPath<AudioReference>(AssetDatabase.GUIDToAssetPath(audioReferences[i]));
+                var audioReference = AssetDatabase.LoadAssetAtPath<AudioReference>(AssetDatabase.GUIDToAssetPath(audioReferencePaths[i]));
                 audioReferencesArray[i] = audioReference;
                 AudioReferenceAssetEditor.UpdateEventName(audioReference);
             }
