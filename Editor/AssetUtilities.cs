@@ -15,7 +15,7 @@ namespace SoundShout.Editor
             return $"{Application.dataPath}/Audio/{assetName}.asset";
         }
 
-        private static string GetProjectPathForEventAsset(string assetName)
+        internal static string GetProjectPathForEventAsset(string assetName)
         {
             return $"Assets/Audio/{assetName}.asset";
         }

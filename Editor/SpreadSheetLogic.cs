@@ -79,12 +79,14 @@ namespace SoundShout.Editor
             var data = GetSheetData(SpreedSheetURL);
             var audioRefs = AssetUtilities.GetAllAudioReferences();
             var sheetTabs = GetSpreadsheetTabsList(data);
-            ReadEntries(ref audioRefs, ref sheetTabs);
+            ReadEntries(audioRefs, sheetTabs);
         }
 
-        private static void ReadEntries(ref AudioReference[] audioReferences, ref List<string> sheets)
+        private static void ReadEntries(AudioReference[] localAudioReferences, List<string> sheets)
         {
-            AssetDeleter assetDeleter = new AssetDeleter();
+            LocalAssetDeleter localAssetDeleter = new LocalAssetDeleter();
+            RemoteAssetDeleter remoteAssetDeleter = new RemoteAssetDeleter();
+            
             try
             {
                 AssetDatabase.DisallowAutoRefresh();
@@ -97,7 +99,7 @@ namespace SoundShout.Editor
 
                     ValueRange response = request.Execute();
                     IList<IList<object>> values = response.Values;
-                    if (values != null && values.Count > 0)
+                    if (values is {Count: > 0})
                     {
                         // Go through each row and their data
                         foreach (var row in values)
@@ -124,9 +126,19 @@ namespace SoundShout.Editor
                                 continue;
                             }
 
-                            bool doesAudioReferenceExist = AssetUtilities.DoesAudioReferenceExist(eventName);
+                            bool assetExistLocally = AssetUtilities.DoesAudioReferenceExist(eventName);
+                            if (parsedImplementationStatus == AudioReference.ImplementationStatus.Delete)
+                            {
+                                remoteAssetDeleter.AddEventName(eventName);
+                                
+                                if (assetExistLocally)
+                                    localAssetDeleter.AddAssetPath(AssetUtilities.GetProjectPathForEventAsset(eventName));
+                                
+                                continue;
+                            }
+                            
                             AudioReference audioRef;
-                            if (doesAudioReferenceExist)
+                            if (assetExistLocally)
                             {
                                 audioRef = AssetUtilities.GetAudioReferenceAtPath(eventName);
                                 AudioReferenceAssetEditor.ApplyChanges(audioRef, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
@@ -138,10 +150,7 @@ namespace SoundShout.Editor
                                 newAudioRefsList.Add(audioRef);
                             }
 
-                            if (parsedImplementationStatus == AudioReference.ImplementationStatus.Delete)
-                            {
-                                assetDeleter.AddReference(audioRef);
-                            }
+                            
                             
                             duplicationDictionary.Add(eventName, audioRef);
                         }
@@ -154,9 +163,9 @@ namespace SoundShout.Editor
 
                 AssetDatabase.AllowAutoRefresh();
 
-                int currentSize = audioReferences.Length;
+                int currentSize = localAudioReferences.Length;
                 int newSize = currentSize + newAudioRefsList.Count;
-                if (currentSize < newSize)
+                if (currentSize != newSize)
                 {
                     System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
                     for (int i = 0; i < newAudioRefsList.Count; i++)
@@ -166,14 +175,11 @@ namespace SoundShout.Editor
                     }
                     Debug.Log($"<color=cyan>Created {newAudioRefsList.Count} new audio references (Click for info)</color>\n{stringBuilder}");
                     
-                    newAudioRefsList.AddRange(audioReferences);
-                    audioReferences = newAudioRefsList.ToArray();
-
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                 }
                 
-                assetDeleter.DeleteAssets();
+                localAssetDeleter.DeleteAssets();
             }
             catch (Exception)
             {
