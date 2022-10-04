@@ -19,7 +19,7 @@ namespace SoundShout.Editor
         private static string SpreedSheetURL => SoundShoutSettings.Settings.spreadsheetURL;
 
         private static SheetsService service;
-        private static SheetsService Service => service ?? (service = GetSheetsService());
+        private static SheetsService Service => service ??= GetSheetsService();
 
         private enum UsedRows { EventName = 0, Is3D = 1, Looping = 2, Parameters = 3, Description = 4, Feedback = 5, ImplementStatus = 6 }
 
@@ -142,7 +142,13 @@ namespace SoundShout.Editor
                             if (assetExistLocally)
                             {
                                 audioRef = AssetUtilities.GetAudioReferenceAtPath(eventName);
-                                AudioReferenceAssetEditor.ApplyChanges(audioRef, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
+                                if (audioRef.implementationStatus == AudioReference.ImplementationStatus.Delete)
+                                {
+                                    localAssetDeleter.AddAssetPath(AssetUtilities.GetProjectPathForEventAsset(eventName));
+                                    Debug.Log($"Local {nameof(AudioReference)} \"{audioRef}\" is marked for deleting, will not update from Spreadsheet");
+                                }
+                                else
+                                    AudioReferenceAssetEditor.ApplyChanges(audioRef, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
                             }
                             else
                             {
@@ -194,6 +200,10 @@ namespace SoundShout.Editor
             List<ValueRange> data = new List<ValueRange>();
             foreach (var audioRef in audioReferences)
             {
+                // Don't upload entries marked as Delete, they are cleaned up when updating the spreadsheet
+                if (audioRef.implementationStatus == AudioReference.ImplementationStatus.Delete)
+                    continue;
+                
                 // If category don't exist, create it
                 if (!categories.ContainsKey(audioRef.category))
                 {
