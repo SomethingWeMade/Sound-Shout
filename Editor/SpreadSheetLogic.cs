@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
@@ -64,37 +65,39 @@ namespace SoundShout.Editor
         internal static void UpdateAudioSpreadSheet()
         {
             var audioRefs = AssetUtilities.GetAllAudioReferences();
-
-            FetchSpreadsheetChanges();
-
+            FetchSpreadsheetChanges(audioRefs);
+            
             ClearAllSheetsRequest();
-
-            UploadLocalAudioReferenceChanges(ref audioRefs);
+            
+            UploadLocalAudioReferenceChanges(audioRefs);
 
             Debug.Log("AudioReferenceExporter: All AudioReference is up-to-date");
         }
 
         internal static void FetchSpreadsheetChanges()
         {
-            var data = GetSheetData(SpreedSheetURL);
-            var audioRefs = AssetUtilities.GetAllAudioReferences();
-            var sheetTabs = GetSpreadsheetTabsList(data);
-            ReadEntries(audioRefs, sheetTabs);
+            FetchSpreadsheetChanges(AssetUtilities.GetAllAudioReferences());
         }
 
-        private static void ReadEntries(AudioReference[] localAudioReferences, List<string> sheets)
+        private static void FetchSpreadsheetChanges(IReadOnlyCollection<AudioReference> audioReferences)
+        {
+            var data = GetSheetData(SpreedSheetURL);
+            var remoteSheets = GetSpreadsheetTabsList(data);
+            UpdateLocalEvents(audioReferences, remoteSheets);
+        }
+        
+        private static void UpdateLocalEvents(IReadOnlyCollection<AudioReference> localAudioReferences, IReadOnlyList<string> remoteSheets)
         {
             LocalAssetDeleter localAssetDeleter = new LocalAssetDeleter();
-            RemoteAssetDeleter remoteAssetDeleter = new RemoteAssetDeleter();
             
             try
             {
                 AssetDatabase.DisallowAutoRefresh();
                 Dictionary<string, AudioReference> duplicationDictionary = new Dictionary<string, AudioReference>();
                 List<AudioReference> newAudioRefsList = new List<AudioReference>(10);
-                for (int sheetIndex = 0; sheetIndex < sheets.Count; sheetIndex++)
+                for (int sheetIndex = 0; sheetIndex < remoteSheets.Count; sheetIndex++)
                 {
-                    var range = $"{sheets[sheetIndex]}!{STANDARD_RANGE}";
+                    var range = $"{remoteSheets[sheetIndex]}!{STANDARD_RANGE}";
                     var request = Service.Spreadsheets.Values.Get(SpreedSheetURL, range);
 
                     ValueRange response = request.Execute();
@@ -110,7 +113,6 @@ namespace SoundShout.Editor
                                 Debug.LogError($"AudioReference Duplication detected in spreadsheet: {eventName}", duplicationDictionary[eventName]);
                                 continue;
                             }
-
                             
                             bool is3D = (string)row[(int)UsedRows.Is3D] == "3D";
                             bool isLooping = (string)row[(int)UsedRows.Looping] == "Loop";
@@ -129,8 +131,6 @@ namespace SoundShout.Editor
                             bool assetExistLocally = AssetUtilities.DoesAudioReferenceExist(eventName);
                             if (parsedImplementationStatus == AudioReference.ImplementationStatus.Delete)
                             {
-                                remoteAssetDeleter.AddEventName(eventName);
-                                
                                 if (assetExistLocally)
                                     localAssetDeleter.AddAssetPath(AssetUtilities.GetProjectPathForEventAsset(eventName));
                                 
@@ -149,21 +149,19 @@ namespace SoundShout.Editor
                                 AssetUtilities.ConfigureAudioReference(audioRef, is3D, isLooping, parameters, description, feedback, parsedImplementationStatus);
                                 newAudioRefsList.Add(audioRef);
                             }
-
-                            
                             
                             duplicationDictionary.Add(eventName, audioRef);
                         }
                     }
                     else
                     {
-                        Debug.Log($"No data was found in tab: \"{sheets[sheetIndex]}\"");
+                        Debug.Log($"No data was found in tab: \"{remoteSheets[sheetIndex]}\"");
                     }
                 }
 
                 AssetDatabase.AllowAutoRefresh();
 
-                int currentSize = localAudioReferences.Length;
+                int currentSize = localAudioReferences.Count;
                 int newSize = currentSize + newAudioRefsList.Count;
                 if (currentSize != newSize)
                 {
@@ -188,7 +186,7 @@ namespace SoundShout.Editor
             }
         }
 
-        private static void UploadLocalAudioReferenceChanges(ref AudioReference[] audioReferences)
+        private static void UploadLocalAudioReferenceChanges(AudioReference[] audioReferences)
         {
             Dictionary<string, int> categories = new Dictionary<string, int>();
 
@@ -283,7 +281,7 @@ namespace SoundShout.Editor
 
         private static void ClearAllSheetsRequest()
         {
-            var data = GetSheetData(SpreedSheetURL);
+            Spreadsheet data = GetSheetData(SpreedSheetURL);
             var sheets = GetSpreadsheetTabsList(data);
             List<string> ranges = new List<string>();
             foreach (var sheetTab in sheets)
@@ -292,10 +290,10 @@ namespace SoundShout.Editor
             }
 
             BatchClearValuesRequest requestBody = new BatchClearValuesRequest {Ranges = ranges};
-
             SpreadsheetsResource.ValuesResource.BatchClearRequest request = Service.Spreadsheets.Values.BatchClear(requestBody, SpreedSheetURL);
             request.Execute();
         }
+
 
         private static IList<Request> CreateMissingSheetTabs(string spreadsheetURL, Dictionary<string, int> categories)
         {
