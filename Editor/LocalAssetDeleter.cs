@@ -5,25 +5,6 @@ using UnityEngine;
 
 namespace SoundShout.Editor
 {
-    public class RemoteAssetDeleter
-    {
-        private readonly List<string> remoteEventNamesToDelete;
-        public RemoteAssetDeleter()
-        {
-            remoteEventNamesToDelete = new List<string>();
-        }
-
-        public void AddEventName(string eventName)
-        {
-            remoteEventNamesToDelete.Add(eventName);
-        }
-
-        public void DeleteAssets()
-        {
-            
-        }
-    }
-    
     public class LocalAssetDeleter
     {
         private readonly List<string> referencesToDelete;
