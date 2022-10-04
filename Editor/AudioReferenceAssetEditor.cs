@@ -39,7 +39,7 @@ namespace SoundShout.Editor
         {
             bool saveUpdates = false;
             string changes = null;
-            UnityEditor.Undo.RecordObject(reference, "Change AudioReference Info");
+            Undo.RecordObject(reference, "Change AudioReference Info");
             if (reference.is3D != is3DSound)
             {
                 changes += $"3D: {reference.is3D}->{is3DSound} ";
@@ -107,9 +107,9 @@ namespace SoundShout.Editor
             }
 
             const string audioPath = SoundShoutPaths.AUDIO_ROOT_PATH;
-            assetPath = assetPath.Replace( $"{audioPath}/", "");
+            assetPath = assetPath.Replace( $"{audioPath}", "");
             assetPath = assetPath.Replace(".asset", "");
-
+            
             int lastSlashIndex = assetPath.IndexOf('/');
             string unityAssetFolderPath = assetPath.Substring(0, lastSlashIndex);
             audioReference.category = unityAssetFolderPath;
@@ -117,15 +117,9 @@ namespace SoundShout.Editor
             audioReference.eventName = assetPath;
 
             string finalEventName = "event:/" + assetPath;
-
-            if (audioReference.fullEventPath != finalEventName)
-            {
-                audioReference.fullEventPath = finalEventName;
-
-                UnityEditor.Undo.RecordObject(audioReference, "Updated AudioReference name");
-            }
-
-            UnityEditor.EditorUtility.SetDirty(audioReference);
+            
+            audioReference.fullEventPath = finalEventName;
+            EditorUtility.SetDirty(audioReference);
         }
 
         private static bool IsAssetPlacedInValidFolder(string assetPath)
