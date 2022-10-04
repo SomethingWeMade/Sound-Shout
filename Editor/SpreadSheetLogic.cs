@@ -74,9 +74,10 @@ namespace SoundShout.Editor
             Debug.Log("AudioReferenceExporter: All AudioReference is up-to-date");
         }
 
-        internal static void FetchSpreadsheetChanges()
+        internal static void FetchSpreadsheetChangesUIButton()
         {
             FetchSpreadsheetChanges(AssetUtilities.GetAllAudioReferences());
+            Debug.Log("Fetched all changes!");
         }
 
         private static void FetchSpreadsheetChanges(IReadOnlyCollection<AudioReference> audioReferences)

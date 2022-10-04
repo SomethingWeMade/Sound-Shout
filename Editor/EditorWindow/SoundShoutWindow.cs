@@ -90,7 +90,7 @@ namespace SoundShout.Editor
             {
                 setupFoldout.Add(Utilities.CreateButton("Open Spreadsheet", SpreadSheetLogic.OpenSpreadSheetInBrowser));
                 setupFoldout.Add(Utilities.CreateButton("Update Spreadsheet", SpreadSheetLogic.UpdateAudioSpreadSheet));
-                setupFoldout.Add(Utilities.CreateButton("Fetch Spreadsheet Changes", SpreadSheetLogic.FetchSpreadsheetChanges));
+                setupFoldout.Add(Utilities.CreateButton("Fetch Spreadsheet Changes", SpreadSheetLogic.FetchSpreadsheetChangesUIButton));
                 setupFoldout.Add(Utilities.CreateButton("Apply Formatting", SpreadSheetLogic.ApplyFormattingToSpreadSheet));
             }
             
