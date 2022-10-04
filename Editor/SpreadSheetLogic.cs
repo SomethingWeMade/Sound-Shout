@@ -84,6 +84,7 @@ namespace SoundShout.Editor
 
         private static void ReadEntries(ref AudioReference[] audioReferences, ref List<string> sheets)
         {
+            AssetDeleter assetDeleter = new AssetDeleter();
             try
             {
                 AssetDatabase.DisallowAutoRefresh();
@@ -122,12 +123,6 @@ namespace SoundShout.Editor
                                 Debug.LogError($"Spreadsheet event \"{eventName}\" has a status value \"{enumString}\" which can't be parsed.");
                                 continue;
                             }
-                            
-                            if (parsedImplementationStatus == AudioReference.ImplementationStatus.Delete)
-                            {
-                                Debug.Log($"Skipped creating audio reference for \"{eventName}\" as it's marked as Delete!");
-                                continue;
-                            }
 
                             bool doesAudioReferenceExist = AssetUtilities.DoesAudioReferenceExist(eventName);
                             AudioReference audioRef;
@@ -143,6 +138,11 @@ namespace SoundShout.Editor
                                 newAudioRefsList.Add(audioRef);
                             }
 
+                            if (parsedImplementationStatus == AudioReference.ImplementationStatus.Delete)
+                            {
+                                assetDeleter.AddReference(audioRef);
+                            }
+                            
                             duplicationDictionary.Add(eventName, audioRef);
                         }
                     }
@@ -172,6 +172,8 @@ namespace SoundShout.Editor
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                 }
+                
+                assetDeleter.DeleteAssets();
             }
             catch (Exception)
             {
