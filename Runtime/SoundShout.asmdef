@@ -1,5 +1,6 @@
 {
-    "name": "AudioReference.Runtime",
+    "name": "SoundShout",
+    "rootNamespace": "SoundShout",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

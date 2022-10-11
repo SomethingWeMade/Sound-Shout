@@ -1,21 +1,21 @@
 {
   "name": "se.somethingwemade.soundshout",
-  "author": {
-    "name": "Something We Made",
-    "email": "niklas@somethingwemade.se",
-    "url": ""
-  },
-  "displayName": "SWM Sound Shout",
-  "version": "0.2.5",
+  "changelogUrl": "https://github.com/SomethingWeMade/Sound-Shout/commits/master",
+  "displayName": "Sound Shout",
+  "version": "0.4.0",
   "description": "Conveniently hook up FMOD events and generate Google Sheets",
+  "category": "scripting",
+  "type": "tool",
+  "hideInEditor": false,
   "keywords": [
-    "something",
-    "we",
-    "made",
+    "something we made",
+    "swm",
     "fmod",
     "audio"
   ],
-  "category": "scripting",
-  "type": "tool",
-  "hideInEditor": false
+  "author": {
+    "name": "Something We Made",
+    "email": "hello@somethingwemade.se",
+    "url": "https://www.somethingwemade.se"
+  }
 }

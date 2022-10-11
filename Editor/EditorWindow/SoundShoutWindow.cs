@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -56,7 +57,7 @@ namespace SoundShout.Editor
         {
             Foldout setupFoldout = new Foldout
             {
-                text = SoundShoutSettings.IsClientSecretsFileAvailable() ? "Initial Setup ✓" : "Initial Setup",
+                text = SoundShoutSettings.Settings.IsClientSecretsFileAvailable() ? "Initial Setup ✓" : "Initial Setup",
                 style = { backgroundColor = new StyleColor(Color.black)}
             };
 
@@ -81,7 +82,7 @@ namespace SoundShout.Editor
                 text = "Export/Import",
             };
 
-            if (!SoundShoutSettings.IsClientSecretsFileAvailable())
+            if (!SoundShoutSettings.Settings.IsClientSecretsFileAvailable())
             {
                 setupFoldout.Add(Utilities.CreateLabel("Please finish the setup!"));
             }
@@ -89,7 +90,7 @@ namespace SoundShout.Editor
             {
                 setupFoldout.Add(Utilities.CreateButton("Open Spreadsheet", SpreadSheetLogic.OpenSpreadSheetInBrowser));
                 setupFoldout.Add(Utilities.CreateButton("Update Spreadsheet", SpreadSheetLogic.UpdateAudioSpreadSheet));
-                setupFoldout.Add(Utilities.CreateButton("Fetch Spreadsheet Changes", SpreadSheetLogic.FetchSpreadsheetChanges));
+                setupFoldout.Add(Utilities.CreateButton("Fetch Spreadsheet Changes", SpreadSheetLogic.FetchSpreadsheetChangesUIButton));
                 setupFoldout.Add(Utilities.CreateButton("Apply Formatting", SpreadSheetLogic.ApplyFormattingToSpreadSheet));
             }
             
@@ -103,7 +104,8 @@ namespace SoundShout.Editor
                 string path = EditorUtility.OpenFilePanel("Select client_secrets.json file", SoundShoutPaths.EDITOR_WINDOW_FOLDER_PATH, "json");
                 if (path.Length != 0)
                 {
-                    AssetUtilities.CreateClientSecretFile(path);
+                    SoundShoutSettings.Settings.clientSecretJsonData = File.ReadAllText(path);
+                    EditorUtility.SetDirty(SoundShoutSettings.Settings);
                 }
             });
 

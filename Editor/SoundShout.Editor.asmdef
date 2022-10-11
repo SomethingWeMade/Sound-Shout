@@ -1,5 +1,6 @@
 {
-    "name": "AudioReference.Editor",
+    "name": "SoundShout.Editor",
+    "rootNamespace": "SoundShout.Editor",
     "references": [
         "GUID:cbef427f5ea729841aaa6900106543cb"
     ],
@@ -14,8 +15,7 @@
         "Google.Apis.Auth.PlatformServices.dll",
         "Google.Apis.Core.dll",
         "Google.Apis.dll",
-        "Google.Apis.Sheets.v4.dll",
-        "Newtonsoft.Json.dll"
+        "Google.Apis.Sheets.v4.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [],
