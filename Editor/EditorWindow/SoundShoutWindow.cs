@@ -8,7 +8,7 @@ namespace SoundShout.Editor
 {
     public class SoundShoutWindow : EditorWindow
     {
-        private const int MIN_ELEMENT_SIZE = 256;
+        private const int MIN_ELEMENT_SIZE = 284;
 
         private const string AUDIO_REFERENCE_ICON_PATH = SoundShoutPaths.EDITOR_WINDOW_FOLDER_PATH + "/SS_Asset_Logo.png";
         private const string TOOL_LOGO_PATH = SoundShoutPaths.EDITOR_WINDOW_FOLDER_PATH + "/SS_Tool_Logo.png";
@@ -41,7 +41,11 @@ namespace SoundShout.Editor
             {
                 style =
                 {
-                    maxHeight = MIN_ELEMENT_SIZE
+                    maxHeight = MIN_ELEMENT_SIZE,
+                    paddingLeft = 32,
+                    paddingRight = 32,
+                    paddingTop = 32,
+                    paddingBottom = 32,
                 }
             };
 
@@ -58,7 +62,6 @@ namespace SoundShout.Editor
             Foldout setupFoldout = new Foldout
             {
                 text = SoundShoutSettings.Settings.IsClientSecretsFileAvailable() ? "Initial Setup ✓" : "Initial Setup",
-                style = { backgroundColor = new StyleColor(Color.black)}
             };
 
             var viewSetupVideoButton = Utilities.CreateButton("Setup Video", () => Process.Start("https://www.youtube.com/watch?v=afTiNU6EoA8"));
